@@ -112,7 +112,7 @@ class AdView(ListView):
         if request.GET.get("text", None):
             self.object_list = self.object_list.filter(name__icontains=request.GET.get("text"))
 
-        if request.GET.get("Location", None):
+        if request.GET.get("location", None):
             self.object_list = self.object_list.filter(author__Locations__name__icontains=request.GET.get('location'))
 
         if request.GET.get("price_form", None):
