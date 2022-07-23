@@ -8,7 +8,7 @@ from users.views import LocationViewSet
 
 
 router = routers.SimpleRouter()
-router.register('loc', LocationViewSet)
+router.register('location', LocationViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
