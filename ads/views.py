@@ -146,7 +146,7 @@ class AdView(ListView):
             "total": page_obj.paginator.count
         }
 
-        return JsonResponse(response, safe=False)
+        return JsonResponse(response, safe=False, json_dumps_params={"ensure_ascii": False})
 
 
 class AdDetailView(DetailView):
