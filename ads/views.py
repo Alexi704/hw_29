@@ -98,15 +98,31 @@ class AdView(ListView):
     models = Ad
     queryset = Ad.objects.all()
 
-    def __int__(self, **kwargs):
-        super().__int__()
-        self.object_list = None
+    # def __int__(self, **kwargs):
+    #     super().__int__()
+    #     self.object_list = None
 
     def get(self, request, *args, **kwargs):
         super().get(request, *args, **kwargs)
 
+        categories = request.GET.getlist("cat", [])
+        if categories:
+            self.object_list = self.object_list.filter(category_id__in=categories)
+
+        if request.GET.get("text", None):
+            self.object_list = self.object_list.filter(name__icontains=request.GET.get("text"))
+
+        if request.GET.get("Location", None):
+            self.object_list = self.object_list.filter(author__Locations__name__icontains=request.GET.get('location'))
+
+        if request.GET.get("price_form", None):
+            self.object_list = self.object_list.filter(price__gte=request.GET.get("price_form"))
+
+        if request.GET.get("price_to", None):
+            self.object_list = self.object_list.filter(price__lte=request.GET.get("price_to"))
+
         self.object_list = self.object_list.select_related('author').order_by("-price")
-        paginator = Paginator(self.object_list, settings.TOTAL_ON_PAGE)
+        paginator = Paginator(self.object_list, settings.REST_FRAMEWORK['PAGE_SIZE'])
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
 
@@ -121,7 +137,7 @@ class AdView(ListView):
                 "description": ad.description,
                 "is_published": ad.is_published,
                 "category_id": ad.category_id,
-                "image": ad.image.url if ad.image else None,
+                # "image": ad.image.url if ad.image else None,
             })
 
         response = {
@@ -214,7 +230,7 @@ class AdUpdateView(UpdateView):
             'category_id': self.object.category_id,
             'image': self.object.image.url if self.object.image else None,
         }
-        return JsonResponse(response, json_dumps_params={"ensure_ascii": False})
+        return JsonResponse(response, safe=False, json_dumps_params={"ensure_ascii": False})
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -248,4 +264,4 @@ class AdUpLoadImageView(UpdateView):
             'category_id': self.object.category_id,
             'image': self.object.image.url if self.object.image else None,
         }
-        return JsonResponse(response, json_dumps_params={"ensure_ascii": False})
+        return JsonResponse(response, safe=False, json_dumps_params={"ensure_ascii": False})
